@@ -1,0 +1,60 @@
+const App={
+  user:null,
+  init(){
+    Api.loadToken();
+    const s=localStorage.getItem('obe_user');
+    if(Api._token&&s){try{this.start(JSON.parse(s));return}catch(_){}}
+    this.showLogin();
+  },
+  showLogin(){
+    document.querySelectorAll('.page').forEach(p=>{p.classList.remove('active');p.style.display=''});
+    const lp=document.getElementById('page-login');lp.classList.add('active');lp.style.display='flex';
+    setTimeout(()=>document.getElementById('login-email')?.focus(),80);
+  },
+  start(user){
+    this.user=user;
+    document.querySelectorAll('.page').forEach(p=>{p.classList.remove('active');p.style.display=''});
+    const ap=document.getElementById('page-app');ap.classList.add('active');ap.style.display='flex';
+    document.getElementById('sb-user-info').innerHTML=`<div class="sb-user-card"><div class="sb-uname">${user.firstName} ${user.lastName}</div><div class="sb-urole">${user.role}</div></div>`;
+    const navs={
+      ADMIN:[
+        {id:'admin-dash',     label:'Dashboard',  icon:'home'},
+        {id:'admin-structure',label:'Structure',  icon:'tree'},
+        {id:'admin-courses',  label:'Courses',    icon:'book'},
+        {id:'admin-users',    label:'Users',      icon:'users'},
+        {id:'admin-outcomes', label:'Outcomes',   icon:'target'},
+        {id:'admin-thresh',   label:'Thresholds', icon:'sliders'},
+      ],
+      FACULTY:[
+        {id:'fac-courses', label:'My Courses', icon:'book'},
+        {id:'fac-reports', label:'Reports',    icon:'file'},
+      ],
+      STUDENT:[
+        {id:'stu-dash',   label:'Dashboard',     icon:'home'},
+        {id:'stu-attain', label:'My Attainment', icon:'chart'},
+      ],
+    };
+    const nav=navs[user.role]||[];
+    document.getElementById('sb-nav').innerHTML=nav.map(n=>`
+      <button class="nav-item" id="nav-${n.id}" onclick="App.go('${n.id}')">${ico(n.icon)} ${n.label}</button>`).join('');
+    this.go(nav[0]?.id);
+  },
+  go(id){
+    if(!id)return;
+    document.querySelectorAll('.nav-item').forEach(el=>el.classList.remove('active'));
+    document.getElementById('nav-'+id)?.classList.add('active');
+    ({
+      'admin-dash':     ()=>AdminView.dash(),
+      'admin-structure':()=>AdminView.structure(),
+      'admin-courses':  ()=>AdminView.courses(),
+      'admin-users':    ()=>AdminView.users(),
+      'admin-outcomes': ()=>AdminView.outcomes(),
+      'admin-thresh':   ()=>AdminView.thresholds(),
+      'fac-courses':    ()=>FacultyView.courses(),
+      'fac-reports':    ()=>FacultyView.reports(),
+      'stu-dash':       ()=>StudentView.dash(),
+      'stu-attain':     ()=>StudentView.attainment(),
+    })[id]?.();
+  },
+};
+document.addEventListener('DOMContentLoaded',()=>App.init());
