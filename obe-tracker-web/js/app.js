@@ -23,7 +23,7 @@ const App={
         {id:'admin-courses',  label:'Courses',    icon:'book'},
         {id:'admin-users',    label:'Users',      icon:'users'},
         {id:'admin-outcomes', label:'Outcomes',   icon:'target'},
-        {id:'admin-thresh',   label:'Thresholds', icon:'sliders'},
+        {id:'admin-attain',   label:'Attainment',  icon:'chart'},
       ],
       FACULTY:[
         {id:'fac-courses', label:'My Courses', icon:'book'},
@@ -49,7 +49,7 @@ const App={
       'admin-courses':  ()=>AdminView.courses(),
       'admin-users':    ()=>AdminView.users(),
       'admin-outcomes': ()=>AdminView.outcomes(),
-      'admin-thresh':   ()=>AdminView.thresholds(),
+      'admin-attain':   ()=>AdminView.attainmentReport(),
       'fac-courses':    ()=>FacultyView.courses(),
       'fac-reports':    ()=>FacultyView.reports(),
       'stu-dash':       ()=>StudentView.dash(),

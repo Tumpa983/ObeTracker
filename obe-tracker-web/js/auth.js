@@ -34,6 +34,6 @@ async function resetPw(){
   const cpw=document.getElementById('forgot-cpw').value;
   const err=document.getElementById('forgot-error');err.classList.add('hidden');
   if(pw!==cpw){err.innerHTML='<span class="alert-icon">⚠</span>Passwords do not match.';err.classList.remove('hidden');return}
-  try{await Api.resetPassword(email,otp,pw);toast('Password reset — please sign in.','ok');showLogin()}
+  try{await Api.resetPassword(email,otp,pw);toast('Password reset - please sign in.','ok');showLogin()}
   catch(e){err.innerHTML=`<span class="alert-icon">⚠</span>${e.message}`;err.classList.remove('hidden')}
 }

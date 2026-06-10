@@ -189,18 +189,31 @@ const assignFaculty = async (req, res, next) => {
 // ── User Management ──────────────────────────────────────────
 const getUsers = async (req, res, next) => {
   try {
-    const { role, isActive, search } = req.query;
+    const { role, isActive, search, sessionId, departmentId } = req.query;
+
+    // If filtering by session: get studentIds enrolled in any course of that session
+    let sessionStudentIds = null;
+    if (sessionId) {
+      const enrolments = await prisma.enrolment.findMany({
+        where: { course: { sessionId } },
+        select: { studentId: true },
+      });
+      sessionStudentIds = [...new Set(enrolments.map(e => e.studentId))];
+    }
+
     const users = await prisma.user.findMany({
       where: {
         institutionId: req.user.institutionId,
         deletedAt: null,
         ...(role && { role }),
         ...(isActive !== undefined && { isActive: isActive === 'true' }),
+        ...(sessionStudentIds && { id: { in: sessionStudentIds } }),
         ...(search && {
           OR: [
             { email: { contains: search, mode: 'insensitive' } },
             { firstName: { contains: search, mode: 'insensitive' } },
             { lastName: { contains: search, mode: 'insensitive' } },
+            { institutionalId: { contains: search, mode: 'insensitive' } },
           ],
         }),
       },
@@ -208,7 +221,7 @@ const getUsers = async (req, res, next) => {
         id: true, email: true, role: true, firstName: true, lastName: true,
         institutionalId: true, isActive: true, lastLoginAt: true, createdAt: true,
       },
-      orderBy: { createdAt: 'desc' },
+      orderBy: { institutionalId: 'asc' },
     });
     res.json({ status: 'success', data: users });
   } catch (err) { next(err); }
@@ -327,6 +340,98 @@ const getDashboard = async (req, res, next) => {
   } catch (err) { next(err); }
 };
 
+const getAttainmentReport = async (req, res, next) => {
+  try {
+    const { sessionId, departmentId, studentId } = req.query;
+    const institutionId = req.user.institutionId;
+
+    const courseWhere = {
+      deletedAt: null,
+      program: { department: { institutionId } },
+      ...(sessionId && { sessionId }),
+      ...(departmentId && { program: { departmentId } }),
+    };
+
+    const courses = await prisma.course.findMany({
+      where: courseWhere,
+      include: {
+        program: { select: { code: true, name: true } },
+        session: { select: { name: true } },
+      },
+    });
+    const courseIds = courses.map(c => c.id);
+    if (!courseIds.length) {
+      return res.json({ status: 'success', data: { courses: [], coSummary: [], poSummary: [] } });
+    }
+
+    // CoAttainment has no course relation — join via courseId lookup separately
+    const courseMap = Object.fromEntries(courses.map(c => [c.id, c]));
+
+    const coRaw = await prisma.coAttainment.findMany({
+      where: {
+        courseId: { in: courseIds },
+        ...(studentId && { studentId }),
+      },
+      include: {
+        courseOutcome: { select: { code: true, title: true } },
+      },
+    });
+
+    const poRaw = await prisma.poAttainment.findMany({
+      where: {
+        courseId: { in: courseIds },
+        ...(studentId && { studentId }),
+      },
+      include: {
+        programOutcome: { select: { code: true, title: true } },
+      },
+    });
+
+    const coMap = {};
+    coRaw.forEach(r => {
+      const course = courseMap[r.courseId] || {};
+      const key = r.courseId + '_' + r.courseOutcomeId;
+      if (!coMap[key]) coMap[key] = {
+        courseCode: course.code || '', courseName: course.name || '',
+        coCode: r.courseOutcome.code, coTitle: r.courseOutcome.title,
+        attained: 0, total: 0,
+      };
+      coMap[key].total++;
+      if (r.level === 'L3') coMap[key].attained++;
+    });
+
+    const poMap = {};
+    poRaw.forEach(r => {
+      const key = r.programOutcomeId;
+      if (!poMap[key]) poMap[key] = {
+        poCode: r.programOutcome.code, poTitle: r.programOutcome.title,
+        attained: 0, total: 0,
+      };
+      poMap[key].total++;
+      if (r.level === 'L3') poMap[key].attained++;
+    });
+
+    const coSummary = Object.values(coMap).map(v => ({
+      ...v,
+      attainmentRate: v.total ? +(v.attained / v.total * 100).toFixed(1) : 0,
+    }));
+    const poSummary = Object.values(poMap).map(v => ({
+      ...v,
+      attainmentRate: v.total ? +(v.attained / v.total * 100).toFixed(1) : 0,
+    }));
+
+    const numSort = (a, b) => {
+      const nA = parseInt((a.coCode || a.poCode || '').replace(/\D+/g, ''), 10);
+      const nB = parseInt((b.coCode || b.poCode || '').replace(/\D+/g, ''), 10);
+      return isNaN(nA) || isNaN(nB) ? 0 : nA - nB;
+    };
+    coSummary.sort(numSort);
+    poSummary.sort(numSort);
+
+    res.json({ status: 'success', data: { courses, coSummary, poSummary } });
+  } catch (err) { next(err); }
+};
+
 module.exports = {
   getDepartments, createDepartment, updateDepartment, deleteDepartment,
   getPrograms, createProgram, updateProgram, deleteProgram,
@@ -334,6 +439,7 @@ module.exports = {
   getCourses, createCourse, updateCourse, deleteCourse, assignFaculty,
   getUsers, createUser, updateUser,
   getThresholds, upsertThresholds,
+  getAttainmentReport,
   getProgramOutcomes, createProgramOutcome, updateProgramOutcome, deleteProgramOutcome,
   getDashboard,
 };

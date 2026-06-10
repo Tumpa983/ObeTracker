@@ -2,7 +2,7 @@ const AdminView={
   // ── Dashboard ──────────────────────────────────────────────
   async dash(){
     const vr=document.getElementById('view-root');
-    vr.innerHTML=`<div class="page-hd"><div class="page-hd-left"><h1>Dashboard</h1><div class="hd-sub">Bangladesh University of Professionals — Institution Overview</div></div></div>
+    vr.innerHTML=`<div class="page-hd"><div class="page-hd-left"><h1>Dashboard</h1><div class="hd-sub">Bangladesh University of Professionals - Institution Overview</div></div></div>
       <div class="stats-row" id="dash-stats">${loading()}</div>`;
     try{
       const s=await Api.getDashboard();
@@ -52,7 +52,7 @@ const AdminView={
     const el=document.getElementById('tp');
     el.innerHTML=`<div class="flex-between mb3"><span class="sec-title">Programs</span><button class="btn btn-primary btn-sm" onclick="AdminView._addProg()">${ico('plus')} Add</button></div>
       <div class="tbl-wrap"><table><thead><tr><th>Code</th><th>Name</th><th>Department</th></tr></thead><tbody id="ptb">${tdLoad(3)}</tbody></table></div>`;
-    try{const l=await Api.getPrograms();document.getElementById('ptb').innerHTML=l.length?l.map(p=>`<tr><td><span class="code-badge">${p.code}</span></td><td class="fw7">${p.name}</td><td class="text-muted">${p.department?.name||'—'}</td></tr>`).join(''):tdEmpty('No programs yet',3)}
+    try{const l=await Api.getPrograms();document.getElementById('ptb').innerHTML=l.length?l.map(p=>`<tr><td><span class="code-badge">${p.code}</span></td><td class="fw7">${p.name}</td><td class="text-muted">${p.department?.name||'-'}</td></tr>`).join(''):tdEmpty('No programs yet',3)}
     catch(e){document.getElementById('ptb').innerHTML=tdEmpty(e.message,3)}
   },
   async _addProg(){const d=await Api.getDepartments();showModal('Add Program',`<div class="fg mb3"><label>Department</label><select id="mp-dept">${d.map(x=>`<option value="${x.id}">${x.name}</option>`).join('')}</select></div>
@@ -77,7 +77,7 @@ const AdminView={
     `<button class="btn btn-ghost" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="AdminView._saveSession()">${ico('save')} Save</button>`)},
   async _saveSession(){const name=document.getElementById('ms-name').value.trim(),startDate=document.getElementById('ms-date').value;if(!name||!startDate)return toast('Name and date required','err');
     try{await Api.createSession({name,startDate});toast('Session added');closeModal();this._sessions()}catch(e){toast(e.message,'err')}},
-  _editSession(id,name,cur){showModal(`Status — ${name}`,`<div class="fg"><label>Status</label><select id="ms-status">${['DRAFT','ACTIVE','CLOSED','ARCHIVED'].map(s=>`<option value="${s}" ${s===cur?'selected':''}>${s}</option>`).join('')}</select></div>`,
+  _editSession(id,name,cur){showModal(`Status - ${name}`,`<div class="fg"><label>Status</label><select id="ms-status">${['DRAFT','ACTIVE','CLOSED','ARCHIVED'].map(s=>`<option value="${s}" ${s===cur?'selected':''}>${s}</option>`).join('')}</select></div>`,
     `<button class="btn btn-ghost" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="AdminView._saveSessionStatus('${id}')">${ico('save')} Save</button>`)},
   async _saveSessionStatus(id){const status=document.getElementById('ms-status').value;try{await Api.updateSession(id,{status});toast('Updated');closeModal();this._sessions()}catch(e){toast(e.message,'err')}},
 
@@ -108,8 +108,8 @@ const AdminView={
       return`<tr>
         <td><span class="code-badge">${c.code}</span></td>
         <td class="fw7">${c.name}</td>
-        <td><span class="badge bg-gray">${c.program?.code||'—'}</span></td>
-        <td class="text-muted">${c.session?.name||'—'}</td>
+        <td><span class="badge bg-gray">${c.program?.code||'-'}</span></td>
+        <td class="text-muted">${c.session?.name||'-'}</td>
         <td style="text-align:center;color:var(--text3)">${c.creditHours}</td>
         <td><div style="display:flex;flex-wrap:wrap;gap:4px">${fac}</div></td>
         <td class="td-r">
@@ -122,7 +122,7 @@ const AdminView={
   },
   async _addCourse(){
     const[p,s]=await Promise.all([Api.getPrograms(),Api.getSessions()]);
-    showModal('Add Course',`<div class="form-row fr2 mb3"><div class="fg"><label>Program</label><select id="mco-p">${p.map(x=>`<option value="${x.id}">${x.code} — ${x.name}</option>`).join('')}</select></div>
+    showModal('Add Course',`<div class="form-row fr2 mb3"><div class="fg"><label>Program</label><select id="mco-p">${p.map(x=>`<option value="${x.id}">${x.code} - ${x.name}</option>`).join('')}</select></div>
       <div class="fg"><label>Session / Batch</label><select id="mco-s">${s.map(x=>`<option value="${x.id}">${x.name}</option>`).join('')}</select></div></div>
       <div class="form-row fr2"><div class="fg"><label>Course Name</label><input id="mco-n" placeholder="e.g. Artificial Intelligence"></div>
       <div class="fg"><label>Course Code</label><input id="mco-c" placeholder="e.g. ICE-4107"></div></div>
@@ -136,7 +136,7 @@ const AdminView={
     const users=await Api.getUsers({role:'FACULTY'});
     const c=(this._cl||[]).find(x=>x.id===courseId);
     const assigned=new Set((c?.assignments||[]).map(a=>a.faculty.id));
-    showModal(`Assign Faculty — ${code}`,`<div style="display:flex;flex-direction:column;gap:8px;max-height:340px;overflow-y:auto">
+    showModal(`Assign Faculty - ${code}`,`<div style="display:flex;flex-direction:column;gap:8px;max-height:340px;overflow-y:auto">
       ${users.map(u=>`<label style="display:flex;align-items:center;gap:12px;padding:11px 13px;border:1.5px solid ${assigned.has(u.id)?'var(--green)':'var(--border)'};border-radius:8px;cursor:pointer;background:${assigned.has(u.id)?'var(--green-xl)':'#fff'};transition:all .12s" onmouseenter="this.style.borderColor='var(--green)'" onmouseleave="this.style.borderColor='${assigned.has(u.id)?'var(--green)':'var(--border)'}'"">
         <input type="checkbox" value="${u.id}" ${assigned.has(u.id)?'checked':''} style="width:auto;accent-color:var(--green)">
         <div><div class="fw7">${u.firstName} ${u.lastName}</div><div class="text-sm text-muted">${u.email}</div></div>
@@ -147,26 +147,64 @@ const AdminView={
 
   // ── Users ──────────────────────────────────────────────────
   async users(){
+    const [sessions,depts]=await Promise.all([Api.getSessions(),Api.getDepartments()]).catch(()=>[[],[]]);
     document.getElementById('view-root').innerHTML=`
-      <div class="page-hd"><div class="page-hd-left"><h1>Users</h1><div class="hd-sub">All institutional accounts</div></div>
+      <div class="page-hd"><div class="page-hd-left"><h1>Users</h1><div class="hd-sub">Search by role, batch or department to view users</div></div>
         <div class="page-hd-actions"><button class="btn btn-primary" onclick="AdminView._addUser()">${ico('add_user')} Add User</button></div></div>
       <div class="filter-bar">
-        <div class="search-wrap"><input id="uq" placeholder="Search name or email…" oninput="AdminView._filterU()"></div>
-        <select id="uf-role" onchange="AdminView._loadU()"><option value="">All Roles</option><option value="ADMIN">Admin</option><option value="FACULTY">Faculty</option><option value="STUDENT">Student</option></select>
+        <div class="search-wrap"><input id="uq" placeholder="Search name or email..." oninput="AdminView._filterU()"></div>
+        <select id="uf-role" onchange="AdminView._loadU()">
+          <option value="">-- Select Role --</option>
+          <option value="ADMIN">Admin</option>
+          <option value="FACULTY">Faculty</option>
+          <option value="STUDENT">Student</option>
+        </select>
+        <select id="uf-sess" onchange="AdminView._loadU()">
+          <option value="">-- Select Batch --</option>
+          ${sessions.map(s=>`<option value="${s.id}">${s.name}</option>`).join('')}
+        </select>
+        <select id="uf-dept" onchange="AdminView._loadU()">
+          <option value="">-- Select Dept --</option>
+          ${depts.map(d=>`<option value="${d.id}">${d.name}</option>`).join('')}
+        </select>
       </div>
-      <div class="tbl-wrap"><table><thead><tr><th>Name</th><th>Email</th><th>Role</th><th>ID</th><th style="text-align:center">Active</th><th>Last Login</th></tr></thead>
-        <tbody id="utb">${tdLoad(6)}</tbody></table></div>`;
-    this._loadU();
+      <div class="tbl-wrap"><table><thead><tr>
+        <th>Name</th><th>Email</th><th>Role</th><th>ID</th>
+        <th style="text-align:center">Active</th><th>Last Login</th>
+      </tr></thead>
+      <tbody id="utb"><tr><td colspan="6" class="td-load text-muted">Select a filter above to view users.</td></tr></tbody>
+      </table></div>`;
   },
-  async _loadU(){const role=document.getElementById('uf-role')?.value;document.getElementById('utb').innerHTML=tdLoad(6);
-    try{const l=await Api.getUsers(role?{role}:{});this._ul=l;this._renderU(l)}catch(e){document.getElementById('utb').innerHTML=tdEmpty(e.message,6)}},
+  async _loadU(){
+    const role=document.getElementById('uf-role')?.value;
+    const sessId=document.getElementById('uf-sess')?.value;
+    const deptId=document.getElementById('uf-dept')?.value;
+    // Require at least one filter to be selected
+    if(!role && !sessId && !deptId){
+      document.getElementById('utb').innerHTML='<tr><td colspan="6" class="td-load text-muted">Select a filter above to view users.</td></tr>';
+      return;
+    }
+    document.getElementById('utb').innerHTML=tdLoad(6);
+    try{
+      const params={};
+      if(role) params.role=role;
+      if(sessId) params.sessionId=sessId;
+      const l=await Api.getUsers(params);
+      this._ul=l;
+      if(!l.length){
+        document.getElementById('utb').innerHTML='<tr><td colspan="6" class="td-load text-muted">No users found for the selected filters.</td></tr>';
+      } else {
+        this._renderU(l);
+      }
+    }catch(e){document.getElementById('utb').innerHTML=tdEmpty(e.message,6)}
+  },
   _filterU(){const q=document.getElementById('uq').value.toLowerCase();this._renderU((this._ul||[]).filter(u=>`${u.firstName} ${u.lastName} ${u.email}`.toLowerCase().includes(q)))},
   _renderU(list){
     document.getElementById('utb').innerHTML=list.length?list.map(u=>`<tr>
       <td class="fw7">${u.firstName} ${u.lastName}</td>
       <td class="text-muted text-sm">${u.email}</td>
       <td><span class="role-pill rp-${u.role}">${u.role}</span></td>
-      <td class="text-mono text-sm text-muted">${u.institutionalId||'—'}</td>
+      <td class="text-mono text-sm text-muted">${u.institutionalId||'-'}</td>
       <td style="text-align:center">
         <label class="tog"><input type="checkbox" ${u.isActive?'checked':''} onchange="AdminView._togUser('${u.id}',this)"><span class="tog-track"></span></label>
       </td>
@@ -186,9 +224,9 @@ const AdminView={
   async outcomes(){
     const progs=await Api.getPrograms();
     document.getElementById('view-root').innerHTML=`
-      <div class="page-hd"><div class="page-hd-left"><h1>Program Outcomes</h1><div class="hd-sub">PO1–PO12 per program</div></div>
+      <div class="page-hd"><div class="page-hd-left"><h1>Program Outcomes</h1><div class="hd-sub">PO1-PO12 per program</div></div>
         <div class="page-hd-actions">
-          <select id="po-prog" style="min-width:260px" onchange="AdminView._loadPOs()">${progs.map(p=>`<option value="${p.id}">${p.code} — ${p.name}</option>`).join('')}</select>
+          <select id="po-prog" style="min-width:260px" onchange="AdminView._loadPOs()">${progs.map(p=>`<option value="${p.id}">${p.code} - ${p.name}</option>`).join('')}</select>
           <button class="btn btn-primary" onclick="AdminView._addPO()">${ico('plus')} Add PO</button>
         </div>
       </div>
@@ -210,7 +248,7 @@ const AdminView={
         <div class="po-card-title">${po.title}</div>
         ${po.description?`<div class="po-card-desc">${po.description}</div>`:''}
       </div>`).join('')}</div>`
-      :`<div class="empty-box"><div class="empty-ico">${ico('target',24)}</div><h3>No outcomes yet</h3><p>Add PO1–PO12 for this program.</p></div>`;
+      :`<div class="empty-box"><div class="empty-ico">${ico('target',24)}</div><h3>No outcomes yet</h3><p>Add PO1-PO12 for this program.</p></div>`;
     }catch(e){el.innerHTML=`<div class="alert alert-error"><span class="alert-icon">⚠</span>${e.message}</div>`}
   },
   _addPO(){if(!document.getElementById('po-prog')?.value)return toast('Select a program first','err');
@@ -229,44 +267,86 @@ const AdminView={
     try{await Api.deleteProgramOutcome(id);toast('Deleted');this._loadPOs()}catch(e){toast(e.message,'err')}},
 
   // ── Thresholds ─────────────────────────────────────────────
-  async thresholds(){
-    document.getElementById('view-root').innerHTML=`<div class="page-hd"><div class="page-hd-left"><h1>Attainment Thresholds</h1><div class="hd-sub">Binary attainment model — 60% threshold</div></div></div>${loading()}`;
+  async attainmentReport(){
+    document.getElementById('view-root').innerHTML=`<div class="page-hd"><div class="page-hd-left"><h1>Attainment Report</h1><div class="hd-sub">CO/PO attainment by batch and department</div></div></div>${loading()}`;
     try{
-      const th=await Api.getThresholds();
+      const [sessions,depts]=await Promise.all([Api.getSessions(),Api.getDepartments()]);
       document.getElementById('view-root').innerHTML=`
-        <div class="page-hd"><div class="page-hd-left"><h1>Attainment Thresholds</h1><div class="hd-sub">Minimum % for each attainment level</div></div></div>
-        <div class="alert alert-warn mb3"><span class="alert-icon">⚠</span>Changes apply to future computations only. Existing records are not retroactively updated.</div>
-        <div class="card" style="max-width:540px"><div class="card-bd">
-          <div class="alert alert-info mb3"><span class="alert-icon">ℹ</span>
-            This system uses a <strong>binary attainment model</strong>. A CO or PO is either Attained or Not Attained based on a fixed 60% threshold. The multi-level L0–L3 scale is not used.
-          </div>
-          <div style="display:flex;align-items:center;gap:14px;padding:16px 0;border-bottom:1px solid var(--border)">
-            <div style="width:46px;height:32px;background:var(--l3);border-radius:7px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:11px;flex-shrink:0">✓</div>
-            <div style="flex:1">
-              <div class="fw7">CO Attained</div>
-              <div class="text-sm text-muted">Student scores ≥ 60% on weighted marks across all assessments linked to that CO</div>
+        <div class="page-hd"><div class="page-hd-left"><h1>Attainment Report</h1><div class="hd-sub">View attainment across batches and departments</div></div></div>
+        <div class="card mb4"><div class="card-bd">
+          <div class="filter-bar" style="margin-bottom:0">
+            <div class="fg" style="flex:1;margin:0"><label>Batch / Session</label>
+              <select id="ar-sess"><option value="">All Batches</option>${sessions.map(s=>`<option value="${s.id}">${s.name}</option>`).join('')}</select></div>
+            <div class="fg" style="flex:1;margin:0"><label>Department</label>
+              <select id="ar-dept"><option value="">All Departments</option>${depts.map(d=>`<option value="${d.id}">${d.name}</option>`).join('')}</select></div>
+            <div style="padding-top:22px">
+              <button class="btn btn-primary" onclick="AdminView._loadAttainReport()">${ico('chart')} View Report</button>
             </div>
-            <div style="font-size:22px;font-weight:800;color:var(--l3)">≥ 60%</div>
           </div>
-          <div style="display:flex;align-items:center;gap:14px;padding:16px 0;border-bottom:1px solid var(--border)">
-            <div style="width:46px;height:32px;background:var(--l3);border-radius:7px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:11px;flex-shrink:0">✓</div>
-            <div style="flex:1">
-              <div class="fw7">PO Attained</div>
-              <div class="text-sm text-muted">≥ 60% of the correlation-weighted COs mapped to that PO are individually attained</div>
-            </div>
-            <div style="font-size:22px;font-weight:800;color:var(--l3)">≥ 60%</div>
-          </div>
-          <div style="display:flex;align-items:center;gap:14px;padding:16px 0">
-            <div style="width:46px;height:32px;background:var(--l0);border-radius:7px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:11px;flex-shrink:0">✗</div>
-            <div style="flex:1">
-              <div class="fw7">Not Attained</div>
-              <div class="text-sm text-muted">Below 60% — displayed in red throughout the system</div>
-            </div>
-            <div style="font-size:22px;font-weight:800;color:var(--l0)">< 60%</div>
-          </div>
-          <div class="alert alert-warn mt3"><span class="alert-icon">⚠</span>The 60% threshold is fixed in the system. Contact your system administrator to change it.</div>
-        </div></div>`;
-    }catch(e){document.getElementById('view-root').innerHTML+=`<div class="alert alert-error"><span class="alert-icon">⚠</span>${e.message}</div>`}
+        </div></div>
+        <div id="ar-result"></div>`;
+    }catch(e){document.getElementById('view-root').innerHTML+=`<div class="alert alert-error"><span class="alert-icon">&#9888;</span>${e.message}</div>`}
   },
-  async _saveTh(){ toast('Threshold is fixed at 60% in this system.','inf'); },
+
+  async _loadAttainReport(){
+    const sessId=document.getElementById('ar-sess').value;
+    const deptId=document.getElementById('ar-dept').value;
+    const el=document.getElementById('ar-result');
+    el.innerHTML=loading();
+    try{
+      const filters={};
+      if(sessId) filters.sessionId=sessId;
+      if(deptId) filters.departmentId=deptId;
+      const{coSummary,poSummary}=await Api.getAttainmentReport(filters);
+      if(!coSummary.length&&!poSummary.length){
+        el.innerHTML=`<div class="empty-box"><div class="empty-ico">${ico('chart',24)}</div><h3>No data for this filter</h3><p>Try a different batch or department.</p></div>`;
+        return;
+      }
+      el.innerHTML=`
+        <div class="flex-between mb3"><div class="sec-title">Course Outcome Attainment</div>
+          <button class="btn btn-secondary btn-sm" onclick="AdminView._exportCSV()">${ico('dl',13)} Export CSV</button></div>
+        <div class="tbl-wrap mb4"><table>
+          <thead><tr><th>Course</th><th>CO</th><th>Title</th>
+            <th style="text-align:center">Attained</th><th style="text-align:center">Total</th>
+            <th style="min-width:160px">Rate</th></tr></thead>
+          <tbody>${coSummary.map(r=>{const lvl=r.attainmentRate>=60?'L3':'L0';return`<tr>
+            <td><span class="code-badge">${r.courseCode}</span></td>
+            <td><span class="badge bg-green">${r.coCode}</span></td>
+            <td>${r.coTitle}</td>
+            <td style="text-align:center;font-weight:700;color:var(--l3)">${r.attainedCount}</td>
+            <td style="text-align:center;color:var(--text3)">${r.total}</td>
+            <td>${attBar(r.attainmentRate,lvl)}</td>
+          </tr>`}).join('')}</tbody>
+        </table></div>
+        <div class="sec-title mb3">Program Outcome Attainment</div>
+        <div class="tbl-wrap"><table>
+          <thead><tr><th>PO</th><th>Title</th>
+            <th style="text-align:center">Attained</th><th style="text-align:center">Total</th>
+            <th style="min-width:160px">Rate</th></tr></thead>
+          <tbody>${poSummary.map(r=>{const lvl=r.attainmentRate>=60?'L3':'L0';return`<tr>
+            <td><span class="badge bg-blue">${r.poCode}</span></td>
+            <td>${r.poTitle}</td>
+            <td style="text-align:center;font-weight:700;color:var(--l3)">${r.attainedCount}</td>
+            <td style="text-align:center;color:var(--text3)">${r.total}</td>
+            <td>${attBar(r.attainmentRate,lvl)}</td>
+          </tr>`}).join('')}</tbody>
+        </table></div>`;
+      this._lastReport={coSummary,poSummary};
+    }catch(e){el.innerHTML=`<div class="alert alert-error"><span class="alert-icon">&#9888;</span>${e.message}</div>`}
+  },
+
+  _exportCSV(){
+    const d=this._lastReport; if(!d) return;
+    const rows=[
+      ['Type','Course','Code','Title','Attained','Total','Rate(%)'],
+      ...d.coSummary.map(r=>['CO',r.courseCode,r.coCode,r.coTitle,r.attainedCount,r.total,r.attainmentRate]),
+      ['','','','','','',''],
+      ...d.poSummary.map(r=>['PO','',r.poCode,r.poTitle,r.attainedCount,r.total,r.attainmentRate]),
+    ];
+    const csv=rows.map(r=>r.map(v=>'"'+String(v||'').replace(/"/g,'""')+'"').join(',')).join('\n');
+    const a=document.createElement('a');
+    a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));
+    a.download='attainment_report.csv'; a.click();
+  },
+
 };

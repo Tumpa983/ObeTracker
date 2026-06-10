@@ -54,6 +54,7 @@ const Api = {
   getThresholds()                     { return this.get('/admin/thresholds'); },
   upsertThresholds(d)                 { return this.put('/admin/thresholds', d); },
   getProgramOutcomes(programId)       { return this.get('/admin/programs/' + programId + '/outcomes'); },
+  getAttainmentReport(filters)        { return this.get('/admin/attainment-report', filters); },
   createProgramOutcome(programId, d)  { return this.post('/admin/programs/' + programId + '/outcomes', d); },
   updateProgramOutcome(id, d)         { return this.put('/admin/outcomes/' + id, d); },
   deleteProgramOutcome(id)            { return this.delete('/admin/outcomes/' + id); },

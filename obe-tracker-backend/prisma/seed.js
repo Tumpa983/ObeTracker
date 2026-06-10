@@ -78,7 +78,7 @@ async function main() {
   });
   console.log('✓ Department ICE · Program BICE');
 
-  // ── Program Outcomes PO1–PO12 ─────────────────────────────────
+  // ── Program Outcomes PO1-PO12 ─────────────────────────────────
   const poData = [
     { code: 'PO1',  title: 'Engineering Knowledge',
       description: 'Apply knowledge of mathematics, natural science, engineering fundamentals and an engineering specialisation to defined and applied engineering procedures and problems.' },
@@ -115,7 +115,7 @@ async function main() {
     });
     poMap[po.code] = r.id;
   }
-  console.log('✓ PO1–PO12');
+  console.log('✓ PO1-PO12');
 
   // ── Sessions ──────────────────────────────────────────────────
   const batchData = [
@@ -133,7 +133,7 @@ async function main() {
       create: { id: b.id, institutionId: institution.id, name: b.name, startDate: new Date(b.start), endDate: new Date(b.end), status: 'ACTIVE' },
     });
   }
-  console.log('✓ Sessions Batch 2022–2026');
+  console.log('✓ Sessions Batch 2022-2026');
 
   // ── Courses ───────────────────────────────────────────────────
   const sre = await prisma.course.upsert({
@@ -143,9 +143,9 @@ async function main() {
   });
 
   const web = await prisma.course.upsert({
-    where: { sessionId_code: { sessionId: sessions['Batch 2024'].id, code: 'ICE-3205' } },
+    where: { sessionId_code: { sessionId: sessions['Batch 2023'].id, code: 'ICE-3205' } },
     update: {},
-    create: { programId: progBICE.id, sessionId: sessions['Batch 2024'].id, name: 'Web Technologies', code: 'ICE-3205', creditHours: 3 },
+    create: { programId: progBICE.id, sessionId: sessions['Batch 2023'].id, name: 'Web Technologies', code: 'ICE-3205', creditHours: 3 },
   });
 
   const ai = await prisma.course.upsert({
@@ -315,7 +315,7 @@ async function main() {
   });
   console.log('✓ COs for ICE-4107 (Artificial Intelligence)');
 
-  // ── CO–PO Mappings ────────────────────────────────────────────
+  // ── CO-PO Mappings ────────────────────────────────────────────
   // Correlation levels: WEAK=1, MODERATE=2, STRONG=3
   const mapData = [
     // ICE-3207 SRE
@@ -388,7 +388,7 @@ async function main() {
       },
     });
   }
-  console.log('✓ CO–PO mappings (9 per course, 27 total)');
+  console.log('✓ CO-PO mappings (9 per course, 27 total)');
 
   // ── Students (login: studentId / 1234) ────────────────────────
   const studentList = [
@@ -514,14 +514,14 @@ async function main() {
   console.log('  ICE-3205  Web Technologies                      Batch 2024');
   console.log('  ICE-4107  Artificial Intelligence               Batch 2022');
   console.log('');
-  console.log('  Course Outcomes (3 per course, with Bloom\'s + profiles + CO–PO maps)');
+  console.log('  Course Outcomes (3 per course, with Bloom\'s + profiles + CO-PO maps)');
   console.log('  ─────────────────────────────────────────────────────────────────');
   console.log('  ICE-3207  CO1 Software Process (Cog L3) · CO2 Req Analysis (Cog L4) · CO3 Validation (Cog L5)');
   console.log('  ICE-3205  CO1 Front-End Dev (Cog L3)   · CO2 Server-Side (Cog L4)   · CO3 Security (Cog L5)');
   console.log('  ICE-4107  CO1 AI Fundamentals (Cog L2) · CO2 ML Design (Cog L4)     · CO3 AI Ethics (Aff L4)');
 
-  // ── Assessments & Sample Marks (ICE-3207 only — Batch 2023) ──
-  // Weightage plan (no FINAL — excluded as requested):
+  // ── Assessments & Sample Marks (ICE-3207 only - Batch 2023) ──
+  // Weightage plan (no FINAL - excluded as requested):
   //   Quiz 1        10%  20 marks  → CO1
   //   Quiz 2        10%  20 marks  → CO2
   //   Assignment 1  15%  50 marks  → CO1, CO2
@@ -541,31 +541,31 @@ async function main() {
   });
   const [co1, co2, co3] = sreCOs;
 
-  const assessmentDefs = [
-    { title: 'Quiz 1',        type: 'QUIZ',         totalMarks: 20,  weight: 10, cos: [co1] },
-    { title: 'Quiz 2',        type: 'QUIZ',         totalMarks: 20,  weight: 10, cos: [co2] },
-    { title: 'Assignment 1',  type: 'ASSIGNMENT',   totalMarks: 50,  weight: 15, cos: [co1, co2] },
-    { title: 'Assignment 2',  type: 'ASSIGNMENT',   totalMarks: 50,  weight: 15, cos: [co2, co3] },
-    { title: 'Mid Term',      type: 'MID_TERM',     totalMarks: 100, weight: 25, cos: [co1, co2, co3] },
-    { title: 'Lab Work',      type: 'LAB',          totalMarks: 50,  weight: 15, cos: [co3] },
-    { title: 'Presentation',  type: 'PRESENTATION', totalMarks: 30,  weight: 10, cos: [co3] },
+  // ── ICE-3207 SRE: 3 assessments only ──────────────────────────
+  // Total marks per CO:
+  //   CO1: Quiz 1 (20) + Mid Term (30 of 60) = 50 total  → attainment = floor(50*0.6) = 30
+  //   CO2: Quiz 2 (20) + Mid Term (30 of 60) = 50 total  → attainment = floor(50*0.6) = 30
+  //   CO3: Assignment (40) + Mid Term (0 of 60) = 40      → attainment = floor(40*0.6) = 24
+  // Mid Term maps to all 3 COs; Quiz 1 → CO1; Quiz 2 → CO2; Assignment → CO3
+
+  const sreAssessmentDefs = [
+    { title: 'Quiz 1',    type: 'QUIZ',       totalMarks: 20,  cos: [co1] },
+    { title: 'Quiz 2',    type: 'QUIZ',       totalMarks: 20,  cos: [co2] },
+    { title: 'Assignment',type: 'ASSIGNMENT', totalMarks: 40,  cos: [co3] },
+    { title: 'Mid Term',  type: 'MID_TERM',   totalMarks: 60,  cos: [co1, co2, co3] },
   ];
 
-  const createdAssessments = [];
-  for (const def of assessmentDefs) {
+  const sreAssessments = [];
+  for (const def of sreAssessmentDefs) {
     const ass = await prisma.assessment.upsert({
-      where: { id: `seed-ass-sre-${def.title.toLowerCase().replace(/[^a-z0-9]/g, '-')}` },
-      update: {},
+      where: { id: 'seed-ass-sre-' + def.title.toLowerCase().replace(/[^a-z0-9]/g, '-') },
+      update: { totalMarks: def.totalMarks, title: def.title },
       create: {
-        id: `seed-ass-sre-${def.title.toLowerCase().replace(/[^a-z0-9]/g, '-')}`,
-        courseId: sre.id,
-        type: def.type,
-        title: def.title,
-        totalMarks: def.totalMarks,
-        weight: def.weight,
+        id: 'seed-ass-sre-' + def.title.toLowerCase().replace(/[^a-z0-9]/g, '-'),
+        courseId: sre.id, type: def.type, title: def.title,
+        totalMarks: def.totalMarks, weight: 0,
       },
     });
-    // Link COs
     for (const co of def.cos) {
       await prisma.assessmentCO.upsert({
         where: { assessmentId_courseOutcomeId: { assessmentId: ass.id, courseOutcomeId: co.id } },
@@ -573,12 +573,47 @@ async function main() {
         create: { assessmentId: ass.id, courseOutcomeId: co.id },
       });
     }
-    createdAssessments.push({ ...ass, cos: def.cos });
+    sreAssessments.push({ ...ass, coIds: def.cos.map(c => c.id) });
   }
-  console.log(`  ✓ ${createdAssessments.length} assessments created for ICE-3207`);
+  console.log('  ✓ 4 assessments created for ICE-3207 (SRE)');
 
-  // Generate realistic marks — most students between 50–90%, with natural variation
-  // Seeded so results are deterministic and repeatable
+  // ── ICE-3205 Web Technologies: 3 assessments only ──────────────
+  const webCOs = await prisma.courseOutcome.findMany({
+    where: { courseId: web.id, deletedAt: null },
+    orderBy: { code: 'asc' },
+  });
+  const [wco1, wco2, wco3] = webCOs;
+
+  const webAssessmentDefs = [
+    { title: 'Quiz 1',    type: 'QUIZ',       totalMarks: 20,  cos: [wco1] },
+    { title: 'Quiz 2',    type: 'QUIZ',       totalMarks: 20,  cos: [wco2] },
+    { title: 'Assignment',type: 'ASSIGNMENT', totalMarks: 40,  cos: [wco3] },
+    { title: 'Mid Term',  type: 'MID_TERM',   totalMarks: 60,  cos: [wco1, wco2, wco3] },
+  ];
+
+  const webAssessments = [];
+  for (const def of webAssessmentDefs) {
+    const ass = await prisma.assessment.upsert({
+      where: { id: 'seed-ass-web-' + def.title.toLowerCase().replace(/[^a-z0-9]/g, '-') },
+      update: { totalMarks: def.totalMarks, title: def.title },
+      create: {
+        id: 'seed-ass-web-' + def.title.toLowerCase().replace(/[^a-z0-9]/g, '-'),
+        courseId: web.id, type: def.type, title: def.title,
+        totalMarks: def.totalMarks, weight: 0,
+      },
+    });
+    for (const co of def.cos) {
+      await prisma.assessmentCO.upsert({
+        where: { assessmentId_courseOutcomeId: { assessmentId: ass.id, courseOutcomeId: co.id } },
+        update: {},
+        create: { assessmentId: ass.id, courseOutcomeId: co.id },
+      });
+    }
+    webAssessments.push({ ...ass, coIds: def.cos.map(c => c.id) });
+  }
+  console.log('  ✓ 4 assessments created for ICE-3205 (Web Technologies)');
+
+  // ── Seeded random helper ────────────────────────────────────────
   function seededRandom(seed) {
     let s = seed;
     return function() {
@@ -587,100 +622,43 @@ async function main() {
     };
   }
 
-  // Per-student base ability (60–90%) — gives each student a consistent performance level
+  // ── Per-student ability: uniform random across full range (0-100%) ──
   const studentAbility = {};
   students.forEach((stu, i) => {
     const rng = seededRandom(i * 7919 + 1234);
-    // Cluster students into realistic bands: ~15% struggling, ~50% average, ~35% strong
-    const band = rng();
-    if (band < 0.15)      studentAbility[stu.id] = 0.45 + rng() * 0.15; // 45–60%
-    else if (band < 0.65) studentAbility[stu.id] = 0.60 + rng() * 0.20; // 60–80%
-    else                  studentAbility[stu.id] = 0.78 + rng() * 0.17; // 78–95%
+    studentAbility[stu.id] = 0.30 + rng() * 0.65; // 30-95%, no band classification
   });
 
-  // Insert marks for each assessment × each student
-  let markCount = 0;
-  for (const ass of createdAssessments) {
+  // ── Insert SRE marks (integer values) ──────────────────────────
+  let sreMarkCount = 0;
+  for (const ass of sreAssessments) {
     for (const stu of students) {
       const rng = seededRandom(stu.id.charCodeAt(0) * 31 + ass.id.charCodeAt(0) * 17);
       const base = studentAbility[stu.id];
-      // Add assessment-specific noise (±8%) and small random jitter
-      const noise = (rng() - 0.5) * 0.16;
-      const pct = Math.min(1.0, Math.max(0.25, base + noise));
-      const raw = pct * ass.totalMarks;
-      // Round to nearest 0.5
-      const marksObtained = Math.round(raw * 2) / 2;
-
+      const noise = (rng() - 0.5) * 0.14;
+      const pct = Math.min(1.0, Math.max(0.10, base + noise));
+      // Integer marks only
+      const marksObtained = Math.floor(pct * ass.totalMarks);
       await prisma.mark.upsert({
         where: { assessmentId_studentId: { assessmentId: ass.id, studentId: stu.id } },
         update: { marksObtained },
         create: { assessmentId: ass.id, studentId: stu.id, marksObtained },
       });
-      markCount++;
+      sreMarkCount++;
     }
   }
-  console.log(`  ✓ ${markCount} marks inserted (${students.length} students × ${createdAssessments.length} assessments)`);
+  console.log(`  ✓ ${sreMarkCount} integer marks inserted for ICE-3207`);
 
-  // ── Recompute attainment for ICE-3207 ─────────────────────────
-  // ── Assessments & Marks for ICE-3205 Web Technologies ───────
-  // Attributed to Refath Ara Islam (she is assigned to the course)
-  // Weightage: Quiz×2=20%, Assignment×2=30%, Mid Term=25%, Lab=15%, Presentation=10%
-  console.log('  Seeding assessments and marks for ICE-3205 (Web Technologies)...');
-
-  const webCOs = await prisma.courseOutcome.findMany({
-    where: { courseId: web.id, deletedAt: null },
-    orderBy: { code: 'asc' },
-  });
-  const [wco1, wco2, wco3] = webCOs;
-
-  const webAssessmentDefs = [
-    { title: 'Quiz 1',        type: 'QUIZ',         totalMarks: 20,  weight: 10, cos: [wco1] },
-    { title: 'Quiz 2',        type: 'QUIZ',         totalMarks: 20,  weight: 10, cos: [wco2] },
-    { title: 'Assignment 1',  type: 'ASSIGNMENT',   totalMarks: 50,  weight: 15, cos: [wco1, wco2] },
-    { title: 'Assignment 2',  type: 'ASSIGNMENT',   totalMarks: 50,  weight: 15, cos: [wco2, wco3] },
-    { title: 'Mid Term',      type: 'MID_TERM',     totalMarks: 100, weight: 25, cos: [wco1, wco2, wco3] },
-    { title: 'Lab Work',      type: 'LAB',          totalMarks: 50,  weight: 15, cos: [wco3] },
-    { title: 'Presentation',  type: 'PRESENTATION', totalMarks: 30,  weight: 10, cos: [wco3] },
-  ];
-
-  const createdWebAssessments = [];
-  for (const def of webAssessmentDefs) {
-    const ass = await prisma.assessment.upsert({
-      where: { id: `seed-ass-web-${def.title.toLowerCase().replace(/[^a-z0-9]/g, '-')}` },
-      update: {},
-      create: {
-        id: `seed-ass-web-${def.title.toLowerCase().replace(/[^a-z0-9]/g, '-')}`,
-        courseId: web.id,
-        type: def.type,
-        title: def.title,
-        totalMarks: def.totalMarks,
-        weight: def.weight,
-      },
-    });
-    for (const co of def.cos) {
-      await prisma.assessmentCO.upsert({
-        where: { assessmentId_courseOutcomeId: { assessmentId: ass.id, courseOutcomeId: co.id } },
-        update: {},
-        create: { assessmentId: ass.id, courseOutcomeId: co.id },
-      });
-    }
-    createdWebAssessments.push({ ...ass, cos: def.cos });
-  }
-  console.log(`  ✓ ${createdWebAssessments.length} assessments created for ICE-3205`);
-
-  // Generate marks for Web Technologies — slightly different distribution to SRE
-  // (Refath's grading tends to produce slightly higher scores — more assignment-focused)
+  // ── Insert Web marks (integer values) ──────────────────────────
   let webMarkCount = 0;
-  for (const ass of createdWebAssessments) {
+  for (const ass of webAssessments) {
     for (const stu of students) {
       const rng = seededRandom(stu.id.charCodeAt(0) * 53 + ass.id.charCodeAt(0) * 23 + 9999);
       const base = studentAbility[stu.id];
-      // Web Tech marks slightly higher on average (+3%) — reflects Refath's grading style
-      const bias = 0.03;
-      const noise = (rng() - 0.5) * 0.14;
-      const pct = Math.min(1.0, Math.max(0.25, base + bias + noise));
-      const marksObtained = Math.round(pct * ass.totalMarks * 2) / 2;
-
+      const bias = 0.03; // Web marks slightly higher on average
+      const noise = (rng() - 0.5) * 0.12;
+      const pct = Math.min(1.0, Math.max(0.10, base + bias + noise));
+      const marksObtained = Math.floor(pct * ass.totalMarks);
       await prisma.mark.upsert({
         where: { assessmentId_studentId: { assessmentId: ass.id, studentId: stu.id } },
         update: { marksObtained },
@@ -689,137 +667,128 @@ async function main() {
       webMarkCount++;
     }
   }
-  console.log(`  ✓ ${webMarkCount} marks inserted for ICE-3205`);
+  console.log(`  ✓ ${webMarkCount} integer marks inserted for ICE-3205`);
 
-  // Compute attainment for Web Technologies
-  const webMappings = await prisma.coPoMapping.findMany({ where: { courseId: web.id } });
-  const webEnrolments = await prisma.enrolment.findMany({ where: { courseId: web.id } });
-  const webVersion = (await prisma.coPoMapping.findFirst({ where: { courseId: web.id }, orderBy: { version: 'desc' } }))?.version || 1;
-  const allWebAssessments = await prisma.assessment.findMany({
+  // ── Attainment model: sum raw marks, threshold = floor(total * 60%) ──
+  // CO attained if Σ(marks) >= floor(Σ(totalMarks) * 0.6)
+  const CO_THRESH = 0.6;
+
+  function computeCOResult(sid, co, assessments) {
+    const linked = assessments.filter(a => a.coIds.includes(co.id));
+    if (!linked.length) return null;
+    let got = 0, total = 0, hasMark = false;
+    for (const a of linked) {
+      const mark = a.marks ? a.marks.find(m => m.studentId === sid) : null;
+      if (mark == null) continue;
+      hasMark = true;
+      got   += mark.marksObtained;
+      total += a.totalMarks;
+    }
+    if (!hasMark || total === 0) return null;
+    const attainmentMark = Math.floor(total * CO_THRESH); // integer threshold
+    const attained = got >= attainmentMark;
+    return { totalObtained: got, totalPossible: total, attainmentMark, attained,
+             percentage: (got / total) * 100, level: attained ? 'L3' : 'L0' };
+  }
+
+  function computePOResult(coMap, mappings, poId) {
+    const rel = mappings.filter(m => m.programOutcomeId === poId && m.correlation);
+    if (!rel.length) return null;
+    const coResults = rel.map(m => coMap[m.courseOutcomeId]).filter(Boolean);
+    if (!coResults.length) return null;
+    const sumObt = coResults.reduce((s, r) => s + r.totalObtained, 0);
+    const sumPos = coResults.reduce((s, r) => s + r.totalPossible, 0);
+    if (sumPos === 0) return null;
+    const attainmentMark = Math.floor(sumPos * CO_THRESH);
+    const attained = sumObt >= attainmentMark;
+    return { totalObtained: sumObt, totalPossible: sumPos, attainmentMark, attained,
+             percentage: (sumObt / sumPos) * 100, level: attained ? 'L3' : 'L0' };
+  }
+
+  // ── Recompute SRE attainment ────────────────────────────────────
+  const allSREAssessments = await prisma.assessment.findMany({
+    where: { courseId: sre.id, deletedAt: null },
+    include: { assessmentCOs: true, marks: true },
+  });
+  // Attach coIds for convenience
+  allSREAssessments.forEach(a => { a.coIds = a.assessmentCOs.map(ac => ac.courseOutcomeId); });
+
+  const allSREMappings = await prisma.coPoMapping.findMany({ where: { courseId: sre.id } });
+  const sreEnrolments = await prisma.enrolment.findMany({ where: { courseId: sre.id } });
+  const sreVersion = (await prisma.coPoMapping.findFirst({ where: { courseId: sre.id }, orderBy: { version: 'desc' } }))?.version || 1;
+  const srePoIds = [...new Set(allSREMappings.map(m => m.programOutcomeId))];
+
+  const coUpdates = [], poUpdates = [];
+
+  for (const enrolment of sreEnrolments) {
+    const sid = enrolment.studentId;
+    const coMap = {};
+    for (const co of sreCOs) {
+      const result = computeCOResult(sid, co, allSREAssessments);
+      if (!result) continue;
+      coMap[co.id] = result;
+      coUpdates.push(prisma.coAttainment.upsert({
+        where: { courseOutcomeId_studentId: { courseOutcomeId: co.id, studentId: sid } },
+        create: { courseOutcomeId: co.id, studentId: sid, courseId: sre.id, percentage: result.percentage, level: result.level, matrixVersion: sreVersion },
+        update: { percentage: result.percentage, level: result.level, matrixVersion: sreVersion, computedAt: new Date() },
+      }));
+    }
+    for (const pid of srePoIds) {
+      const result = computePOResult(coMap, allSREMappings, pid);
+      if (!result) continue;
+      poUpdates.push(prisma.poAttainment.upsert({
+        where: { programOutcomeId_studentId_courseId: { programOutcomeId: pid, studentId: sid, courseId: sre.id } },
+        create: { programOutcomeId: pid, studentId: sid, courseId: sre.id, percentage: result.percentage, level: result.level, matrixVersion: sreVersion },
+        update: { percentage: result.percentage, level: result.level, matrixVersion: sreVersion, computedAt: new Date() },
+      }));
+    }
+  }
+
+  // ── Recompute Web Technologies attainment ──────────────────────
+  const allWebAssessments2 = await prisma.assessment.findMany({
     where: { courseId: web.id, deletedAt: null },
     include: { assessmentCOs: true, marks: true },
   });
+  allWebAssessments2.forEach(a => { a.coIds = a.assessmentCOs.map(ac => ac.courseOutcomeId); });
 
-  const webCoUpdates = [], webPoUpdates = [];
+  const allWebMappings = await prisma.coPoMapping.findMany({ where: { courseId: web.id } });
+  const webEnrolments = await prisma.enrolment.findMany({ where: { courseId: web.id } });
+  const webVersion = (await prisma.coPoMapping.findFirst({ where: { courseId: web.id }, orderBy: { version: 'desc' } }))?.version || 1;
+  const webPoIds = [...new Set(allWebMappings.map(m => m.programOutcomeId))];
+
   for (const enrolment of webEnrolments) {
     const sid = enrolment.studentId;
-    const coAttainmentMap = {};
+    const coMap = {};
     for (const co of webCOs) {
-      const result = computeCOResult(sid, co, allWebAssessments);
+      const result = computeCOResult(sid, co, allWebAssessments2);
       if (!result) continue;
-      coAttainmentMap[co.id] = result;
-      webCoUpdates.push(prisma.coAttainment.upsert({
+      coMap[co.id] = result;
+      coUpdates.push(prisma.coAttainment.upsert({
         where: { courseOutcomeId_studentId: { courseOutcomeId: co.id, studentId: sid } },
         create: { courseOutcomeId: co.id, studentId: sid, courseId: web.id, percentage: result.percentage, level: result.level, matrixVersion: webVersion },
         update: { percentage: result.percentage, level: result.level, matrixVersion: webVersion, computedAt: new Date() },
       }));
     }
-    const webPoIds = [...new Set(webMappings.map(m => m.programOutcomeId))];
     for (const pid of webPoIds) {
-      const result = computePOResult(coAttainmentMap, webMappings, pid);
+      const result = computePOResult(coMap, allWebMappings, pid);
       if (!result) continue;
-      webPoUpdates.push(prisma.poAttainment.upsert({
+      poUpdates.push(prisma.poAttainment.upsert({
         where: { programOutcomeId_studentId_courseId: { programOutcomeId: pid, studentId: sid, courseId: web.id } },
         create: { programOutcomeId: pid, studentId: sid, courseId: web.id, percentage: result.percentage, level: result.level, matrixVersion: webVersion },
         update: { percentage: result.percentage, level: result.level, matrixVersion: webVersion, computedAt: new Date() },
       }));
     }
   }
-  for (let i = 0; i < webCoUpdates.length; i += batchSize) {
-    await prisma.$transaction(webCoUpdates.slice(i, i + batchSize));
-  }
-  for (let i = 0; i < webPoUpdates.length; i += batchSize) {
-    await prisma.$transaction(webPoUpdates.slice(i, i + batchSize));
-  }
-  console.log(`  ✓ Web Technologies attainment: ${webCoUpdates.length} CO records, ${webPoUpdates.length} PO records`);
+
+  const BATCH = 50;
+  for (let i = 0; i < coUpdates.length; i += BATCH) await prisma.$transaction(coUpdates.slice(i, i + BATCH));
+  for (let i = 0; i < poUpdates.length; i += BATCH) await prisma.$transaction(poUpdates.slice(i, i + BATCH));
+  console.log(`  ✓ Attainment recomputed: ${coUpdates.length} CO records, ${poUpdates.length} PO records`);
+  console.log('');
+  console.log('  Attainment threshold: floor(total marks * 60%)  [integer]');
 
   console.log('  Recomputing attainment...');
-  // Binary attainment uses fixed 60% threshold — no DB thresholds needed
-
-  // Binary attainment: 60% of weighted marks = Attained (L3), else Not Attained (L0)
-  const CO_THRESHOLD = 0.60;
-  const PO_THRESHOLD = 0.60;
-  const corrWeight = { STRONG: 3, MODERATE: 2, WEAK: 1 };
-
-  function computeCOResult(studentId, co, assessments) {
-    const linked = assessments.filter(a => a.assessmentCOs.some(ac => ac.courseOutcomeId === co.id));
-    if (!linked.length) return null;
-    let wMarks = 0, wTotal = 0, hasMark = false;
-    for (const a of linked) {
-      const mark = a.marks.find(m => m.studentId === studentId);
-      if (!mark) continue;
-      hasMark = true;
-      wMarks += mark.marksObtained * a.weight;
-      wTotal += a.totalMarks * a.weight;
-    }
-    if (!hasMark || wTotal === 0) return null;
-    const ratio = wMarks / wTotal;
-    return { percentage: ratio * 100, attained: ratio >= CO_THRESHOLD, level: ratio >= CO_THRESHOLD ? 'L3' : 'L0' };
-  }
-
-  function computePOResult(coMap, mappings, poId) {
-    const rel = mappings.filter(m => m.programOutcomeId === poId && m.correlation);
-    if (!rel.length) return null;
-    let wAtt = 0, wTot = 0;
-    for (const m of rel) {
-      const r = coMap[m.courseOutcomeId];
-      if (!r) continue;
-      const w = corrWeight[m.correlation] || 0;
-      wAtt += w * (r.attained ? 1 : 0);
-      wTot += w;
-    }
-    if (wTot === 0) return null;
-    const ratio = wAtt / wTot;
-    return { percentage: ratio * 100, attained: ratio >= PO_THRESHOLD, level: ratio >= PO_THRESHOLD ? 'L3' : 'L0' };
-  }
-
-  const allAssessments = await prisma.assessment.findMany({
-    where: { courseId: sre.id, deletedAt: null },
-    include: { assessmentCOs: true, marks: true },
-  });
-  const allMappings = await prisma.coPoMapping.findMany({ where: { courseId: sre.id } });
-  const allEnrolments = await prisma.enrolment.findMany({ where: { courseId: sre.id } });
-  const latestVersion = (await prisma.coPoMapping.findFirst({ where: { courseId: sre.id }, orderBy: { version: 'desc' } }))?.version || 1;
-
-  const coUpdates = [], poUpdates = [];
-
-  for (const enrolment of allEnrolments) {
-    const sid = enrolment.studentId;
-    const coAttainmentMap = {};
-    for (const co of sreCOs) {
-      const result = computeCOResult(sid, co, allAssessments);
-      if (!result) continue;
-      coAttainmentMap[co.id] = result;
-      coUpdates.push(prisma.coAttainment.upsert({
-        where: { courseOutcomeId_studentId: { courseOutcomeId: co.id, studentId: sid } },
-        create: { courseOutcomeId: co.id, studentId: sid, courseId: sre.id, percentage: result.percentage, level: result.level, matrixVersion: latestVersion },
-        update: { percentage: result.percentage, level: result.level, matrixVersion: latestVersion, computedAt: new Date() },
-      }));
-    }
-
-    const poIds = [...new Set(allMappings.map(m => m.programOutcomeId))];
-    for (const pid of poIds) {
-      const result = computePOResult(coAttainmentMap, allMappings, pid);
-      if (!result) continue;
-      poUpdates.push(prisma.poAttainment.upsert({
-        where: { programOutcomeId_studentId_courseId: { programOutcomeId: pid, studentId: sid, courseId: sre.id } },
-        create: { programOutcomeId: pid, studentId: sid, courseId: sre.id, percentage: result.percentage, level: result.level, matrixVersion: latestVersion },
-        update: { percentage: result.percentage, level: result.level, matrixVersion: latestVersion, computedAt: new Date() },
-      }));
-    }
-  }
-
-  // Process in batches to avoid transaction limits
-  const batchSize = 50;
-  for (let i = 0; i < coUpdates.length; i += batchSize) {
-    await prisma.$transaction(coUpdates.slice(i, i + batchSize));
-  }
-  for (let i = 0; i < poUpdates.length; i += batchSize) {
-    await prisma.$transaction(poUpdates.slice(i, i + batchSize));
-  }
-  console.log(`  ✓ Attainment computed: ${coUpdates.length} CO records, ${poUpdates.length} PO records`);
-  console.log('');
-  console.log('✅ All done — marks and attainment seeded!');
+  console.log('✅ All done - marks and attainment seeded!');
 }
 
 main().catch(console.error).finally(() => prisma.$disconnect());

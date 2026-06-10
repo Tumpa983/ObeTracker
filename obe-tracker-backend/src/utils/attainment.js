@@ -1,23 +1,19 @@
 /**
- * Attainment threshold — 60% of weighted marks to pass a CO.
- * This is the single binary threshold used throughout the system.
+ * NEW Attainment Model (as specified):
+ *
+ * CO: Sum all marks for tests that involve this CO.
+ *     If sum >= attainment threshold (60% of total possible marks), CO is achieved.
+ *
+ * PO: Sum all CO marks across multiple courses that map to this PO.
+ *     If sum of all involved CO marks >= sum of CO attainment marks, PO is achieved.
  */
-const CO_ATTAINMENT_THRESHOLD = 0.60;   // 60%
-const PO_ATTAINMENT_THRESHOLD = 0.60;   // 60% of weighted CO coverage
+
+const CO_THRESHOLD_PCT = 0.60; // 60%
 
 /**
- * Correlation enum → numeric weight (used for PO computation)
- */
-const correlationWeight = { WEAK: 1, MODERATE: 2, STRONG: 3 };
-
-/**
- * Binary CO attainment per student.
- *
- * Formula:
- *   ratio = Σ(marks × weight) / Σ(totalMarks × weight)   for all assessments linked to this CO
- *   attained = ratio >= 0.60
- *
- * Returns { attained: bool, percentage: number 0-100 }
+ * Compute CO attainment for one student.
+ * Sum all raw marks across assessments linked to this CO.
+ * Attained if sum >= 60% of total possible marks for those assessments.
  */
 function computeCOAttainment(studentId, co, assessments) {
   const linked = assessments.filter(a =>
@@ -25,83 +21,85 @@ function computeCOAttainment(studentId, co, assessments) {
   );
   if (!linked.length) return null;
 
-  let weightedMarks = 0;
-  let weightedTotal = 0;
+  let totalObtained = 0;
+  let totalPossible = 0;
   let hasMark = false;
 
-  for (const assessment of linked) {
-    const mark = assessment.marks.find(m => m.studentId === studentId);
+  for (const a of linked) {
+    const mark = a.marks.find(m => m.studentId === studentId);
     if (!mark) continue;
     hasMark = true;
-    weightedMarks += mark.marksObtained * assessment.weight;
-    weightedTotal += assessment.totalMarks * assessment.weight;
+    totalObtained += mark.marksObtained;
+    totalPossible += a.totalMarks;
   }
 
-  if (!hasMark || weightedTotal === 0) return null;
+  if (!hasMark || totalPossible === 0) return null;
 
-  const ratio = weightedMarks / weightedTotal;
-  const percentage = ratio * 100;
-  const attained = ratio >= CO_ATTAINMENT_THRESHOLD;
-
-  // Store as 100 (attained) or the raw percentage (for display) but level is binary
-  return {
-    percentage,          // raw % for display (e.g. 73.3%)
-    attained,            // binary decision
-    level: attained ? 'L3' : 'L0',   // L3 = Attained, L0 = Not Attained
-  };
-}
-
-/**
- * Binary PO attainment per student.
- *
- * Formula:
- *   weightedAttained = Σ corr(COᵢ, PO) × attained(COᵢ)
- *   weightedTotal    = Σ corr(COᵢ, PO)
- *   ratio = weightedAttained / weightedTotal
- *   attained = ratio >= 0.60
- *
- * Returns { attained: bool, percentage: number 0-100, level: string }
- */
-function computePOAttainment(coAttainmentMap, mappings, programOutcomeId) {
-  const relevant = mappings.filter(
-    m => m.programOutcomeId === programOutcomeId && m.correlation
-  );
-  if (!relevant.length) return null;
-
-  let weightedAttained = 0;
-  let weightedTotal = 0;
-
-  for (const mapping of relevant) {
-    const coResult = coAttainmentMap[mapping.courseOutcomeId];
-    if (coResult === undefined) continue;
-    const w = correlationWeight[mapping.correlation] || 0;
-    weightedAttained += w * (coResult.attained ? 1 : 0);
-    weightedTotal += w;
-  }
-
-  if (weightedTotal === 0) return null;
-
-  const ratio = weightedAttained / weightedTotal;
-  const percentage = ratio * 100;
-  const attained = ratio >= PO_ATTAINMENT_THRESHOLD;
+  const attainmentMark = totalPossible * CO_THRESHOLD_PCT; // the minimum marks needed
+  const attained = totalObtained >= attainmentMark;
+  const percentage = (totalObtained / totalPossible) * 100;
 
   return {
-    percentage,          // % of weighted COs attained (for display)
+    percentage,
+    totalObtained,
+    totalPossible,
+    attainmentMark,
     attained,
     level: attained ? 'L3' : 'L0',
   };
 }
 
-/** Binary level: Attained (L3) or Not Attained (L0). Threshold fixed at 60%. */
-function getLevel(percentage) {
-  return percentage >= CO_ATTAINMENT_THRESHOLD * 100 ? 'L3' : 'L0';
+/**
+ * Compute PO attainment for one student across all courses.
+ * coResultsForPO = array of { totalObtained, totalPossible } for each CO mapped to this PO.
+ * Attained if sum(totalObtained) >= 60% of sum(totalPossible).
+ */
+function computePOAttainmentFromCOs(coResults) {
+  if (!coResults.length) return null;
+
+  const sumObtained = coResults.reduce((s, r) => s + r.totalObtained, 0);
+  const sumPossible = coResults.reduce((s, r) => s + r.totalPossible, 0);
+
+  if (sumPossible === 0) return null;
+
+  const attainmentMark = sumPossible * CO_THRESHOLD_PCT;
+  const attained = sumObtained >= attainmentMark;
+  const percentage = (sumObtained / sumPossible) * 100;
+
+  return {
+    percentage,
+    totalObtained: sumObtained,
+    totalPossible: sumPossible,
+    attainmentMark,
+    attained,
+    level: attained ? 'L3' : 'L0',
+  };
 }
+
+// PO attainment: sum marks from all COs mapped to this PO (correlation strength ignored)
+function computePOAttainment(coAttainmentMap, mappings, programOutcomeId) {
+  // Include any mapping with a non-null correlation (checkbox = checked = 'STRONG')
+  const relevant = mappings.filter(m => m.programOutcomeId === programOutcomeId && m.correlation);
+  if (!relevant.length) return null;
+
+  const coResults = relevant
+    .map(m => coAttainmentMap[m.courseOutcomeId])
+    .filter(Boolean);
+
+  return computePOAttainmentFromCOs(coResults);
+}
+
+function getLevel(percentage) {
+  return percentage >= CO_THRESHOLD_PCT * 100 ? 'L3' : 'L0';
+}
+
+const correlationWeight = { WEAK: 1, MODERATE: 2, STRONG: 3 };
 
 module.exports = {
   computeCOAttainment,
   computePOAttainment,
+  computePOAttainmentFromCOs,
   correlationWeight,
   getLevel,
-  CO_ATTAINMENT_THRESHOLD,
-  PO_ATTAINMENT_THRESHOLD,
+  CO_THRESHOLD_PCT,
 };

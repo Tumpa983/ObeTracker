@@ -31,8 +31,8 @@ const StudentView={
       el.innerHTML=`<div class="tbl-wrap"><table><thead><tr><th>Assessment</th><th>Type</th><th>Total</th><th>My Marks</th><th>%</th></tr></thead>
       <tbody>${l.length?l.map(a=>{const m=a.marks?.[0],p=m?+(m.marksObtained/a.totalMarks*100).toFixed(1):null,col=p===null?'':p>=50?'var(--l3)':'var(--l0)';return`<tr>
         <td class="fw7">${a.title}</td><td><span class="badge bg-gray">${a.type.replace(/_/g,' ')}</span></td>
-        <td>${a.totalMarks}</td><td style="font-weight:700;color:${col}">${m?m.marksObtained:'—'}</td>
-        <td>${p!==null?`<span style="color:${col};font-weight:700">${p}%</span>`:'—'}</td></tr>`}).join(''):tdEmpty('No marks yet',5)}</tbody></table></div>`;
+        <td>${a.totalMarks}</td><td style="font-weight:700;color:${col}">${m?m.marksObtained:'-'}</td>
+        <td>${p!==null?`<span style="color:${col};font-weight:700">${p}%</span>`:'-'}</td></tr>`}).join(''):tdEmpty('No marks yet',5)}</tbody></table></div>`;
     }catch(e){el.innerHTML=`<div class="alert alert-error"><span class="alert-icon">⚠</span>${e.message}</div>`}
   },
 
@@ -40,7 +40,7 @@ const StudentView={
     const el=document.getElementById('sa');el.innerHTML=loading();
     try{
       const{coAttainments,poAttainments}=await Api.getMyAttainment(cid);
-      if(!coAttainments.length){el.innerHTML=`<div class="empty-box"><div class="empty-ico">${ico('chart',24)}</div><h3>No attainment data yet</h3><p>Your faculty needs to enter marks and set up CO–PO mappings first.</p></div>`;return}
+      if(!coAttainments.length){el.innerHTML=`<div class="empty-box"><div class="empty-ico">${ico('chart',24)}</div><h3>No attainment data yet</h3><p>Your faculty needs to enter marks and set up CO-PO mappings first.</p></div>`;return}
       el.innerHTML=`<div class="sec-title mb3">Course Outcome Attainment</div>
         <div class="tbl-wrap mb4"><table><thead><tr><th>CO</th><th>Title</th><th style="min-width:200px">Attainment</th><th>Level</th></tr></thead>
         <tbody>${coAttainments.map(a=>{const p=a.percentage,l=a.level;return`<tr><td><span class="badge bg-green">${a.courseOutcome?.code||''}</span></td><td>${a.courseOutcome?.title||''}</td><td>${attBar(p,l)}</td><td>${levelBadge(l,p)}</td></tr>`}).join('')}</tbody></table></div>

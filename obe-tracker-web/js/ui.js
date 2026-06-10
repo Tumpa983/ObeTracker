@@ -69,7 +69,7 @@ function levelBadge(lvl,pct){
   const cls  = attained ? 'bg-green' : 'bg-red';
   const lbl  = attained ? 'Attained' : 'Not Attained';
   const disp = pct !== undefined ? `${pct.toFixed(1)}%` : lbl;
-  return `<span class="badge ${cls}">${disp} — ${lbl}</span>`;
+  return `<span class="badge ${cls}">${disp} - ${lbl}</span>`;
 }
 
 function attBar(pct,lvl){
@@ -107,7 +107,7 @@ function parseProfiles(co){
 }
 
 function renderProfileChips(profiles){
-  if(!profiles.length) return'<span class="text-muted text-sm">—</span>';
+  if(!profiles.length) return'<span class="text-muted text-sm">-</span>';
   return profiles.map(p=>{
     const def=PROFILE_TYPES.find(t=>t.key===p.type)||{letter:'?',cls:'',label:p.type};
     return`<span class="profile-chip ${def.cls}">${def.letter}${p.code?': '+p.code:''}</span>`;

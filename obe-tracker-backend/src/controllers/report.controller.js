@@ -123,7 +123,7 @@ async function generateCoursePdf(course, coAttainments, poAttainments, filePath,
     Object.values(coMap).forEach(({ co, percentages }) => {
       const avg = percentages.reduce((s, p) => s + p, 0) / percentages.length;
       doc.fontSize(10).font('Helvetica')
-        .text(`${co.code}: ${co.title} — Avg: ${avg.toFixed(1)}% [${co.profileType || 'N/A'} / ${co.bloomDomain || 'N/A'}${co.bloomLevel || ''}]`);
+        .text(`${co.code}: ${co.title} - Avg: ${avg.toFixed(1)}% [${co.profileType || 'N/A'} / ${co.bloomDomain || 'N/A'}${co.bloomLevel || ''}]`);
     });
 
     doc.moveDown();
@@ -137,7 +137,7 @@ async function generateCoursePdf(course, coAttainments, poAttainments, filePath,
     }
     Object.values(poMap).forEach(({ po, percentages }) => {
       const avg = percentages.reduce((s, p) => s + p, 0) / percentages.length;
-      doc.fontSize(10).font('Helvetica').text(`${po.code}: ${po.title} — Avg: ${avg.toFixed(1)}%`);
+      doc.fontSize(10).font('Helvetica').text(`${po.code}: ${po.title} - Avg: ${avg.toFixed(1)}%`);
     });
 
     doc.end();
@@ -162,7 +162,7 @@ async function generateTranscriptPdf(studentId, coAttainments, poAttainments, fi
     doc.moveDown(0.5);
     for (const att of coAttainments) {
       doc.fontSize(10).font('Helvetica')
-        .text(`${att.courseOutcome.course?.code || ''} | ${att.courseOutcome.code}: ${att.courseOutcome.title} — ${att.percentage.toFixed(1)}% (${att.level})`);
+        .text(`${att.courseOutcome.course?.code || ''} | ${att.courseOutcome.code}: ${att.courseOutcome.title} - ${att.percentage.toFixed(1)}% (${att.level})`);
     }
 
     doc.moveDown();
@@ -176,7 +176,7 @@ async function generateTranscriptPdf(studentId, coAttainments, poAttainments, fi
     }
     Object.values(poMap).forEach(({ po, percentages }) => {
       const avg = percentages.reduce((s, p) => s + p, 0) / percentages.length;
-      doc.fontSize(10).font('Helvetica').text(`${po.code}: ${po.title} — ${avg.toFixed(1)}%`);
+      doc.fontSize(10).font('Helvetica').text(`${po.code}: ${po.title} - ${avg.toFixed(1)}%`);
     });
 
     doc.end();
